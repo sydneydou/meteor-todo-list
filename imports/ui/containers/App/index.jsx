@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import {withTracker} from "meteor/react-meteor-data";
 import PropTypes from "prop-types";
 import ToDoInput from "../../components/ToDoInput";
 import ToDoItem from "../../components/ToDoItem";
@@ -6,18 +7,20 @@ import ToDoCount from "../../components/ToDoCount";
 import ClearButton from "../../components/ClearButton";
 import "./styles.css";
 
+import { ToDos } from "../../../api/todos";
 const TODOS = [{ id: 0, title: "Learn React", complete: false }];
 
 class App extends Component {
   constructor() {
     super();
-
+    // PR: do not need this anymore because meteor will handle the todos
     this.state = {
       todos: TODOS,
-      lastId: 1
+      lastId: 0,
     };
   }
 
+  // PR: need to use meteor to toggle complete
   toggleComplete = id => {
     let todos = this.state.todos.map(todo => {
       if (id === todo.id) todo.complete = !todo.complete;
@@ -27,6 +30,7 @@ class App extends Component {
     this.setState({ todos });
   };
 
+  // PR: need to use meteor to add todo 
   addToDo = title => {
     const id = this.state.lastId + 1;
     const newTodo = {
@@ -41,11 +45,13 @@ class App extends Component {
     });
   };
 
+  // PR: need to use meteor to remove todo
   removeToDo = id => {
     let todos = this.state.todos.filter(todo => todo.id !== id);
     this.setState({ todos });
   };
 
+  // PR: need to use meteor to remove all completed
   removeCompleted = () => {
     let todos = this.state.todos.filter(todo => !todo.complete);
     this.setState({ todos });
@@ -142,4 +148,10 @@ class ToDoForm extends Component {
   }
 }
 
-export default App;
+export default withTracker(() => {
+	return {
+		todos: ToDos.find({}).fetch()
+	};
+})(App);
+
+
