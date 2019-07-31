@@ -11,6 +11,8 @@ class App extends Component {
     super();
 
     this.state = {
+      // PR: todos come from props, and we don't need 
+      //     lastId as meteor collection handles that
       todos: [{ id: 0, title: "Learn React", complete: false }],
       lastId: 0,
       inputValue: "",
@@ -20,6 +22,7 @@ class App extends Component {
   }
 
   toggleComplete = item => {
+    // PR: need to rework toggleComplete to use meteor collection
     let todos = this.state.todos.map(todo => {
       if (item.id === todo.id) todo.complete = !todo.complete;
       return todo;
@@ -38,6 +41,10 @@ class App extends Component {
     let toDoInput = this.toDoInput.current;
 
     if (this.state.inputValue) {
+      // PR: need rework
+      //     - no longer need to calculate id as we can rely on _id from meteor
+      //     - need a new way of adding the new ToDo to meteor
+      //     - but we should still reset this.state.inputValue
       const id = this.state.lastId + 1; // update id
 
       const newTodos = [
@@ -60,26 +67,29 @@ class App extends Component {
   };
 
   removeToDo = item => {
+    // PR: need to rework removeToDo to use meteor collection
     let todos = this.state.todos.filter(todo => todo.id !== item.id);
     this.setState({ todos });
   };
 
   removeCompleted = () => {
+    // PR: need to rework toggleComplete to use meteor collection
     let todos = this.state.todos.filter(todo => !todo.complete);
     this.setState({ todos });
   };
 
   hasCompleted() {
+    // PR: changing this.state to this.props
     let completed = this.state.todos.filter(todo => todo.complete);
     return completed.length > 0 ? true : false;
   }
 
   componentDidMount() {
-    // Can't do this with a controlled component!
     this.toDoInput.current.focus();
   }
 
   render() {
+    // PR: changing this.state to this.props
     let number = this.state.todos.length;
 
     return (
@@ -92,7 +102,9 @@ class App extends Component {
           value={this.state.inputValue}
         />
         <ul>
-          {this.state.todos.map((todo, index) => (
+          {
+            // PR: changing this.state to this.props
+            this.state.todos.map((todo, index) => (
             <ToDoItem
               key={index}
               item={todo}
