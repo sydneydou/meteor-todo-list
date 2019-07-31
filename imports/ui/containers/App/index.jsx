@@ -6,30 +6,75 @@ import ToDoCount from "../../components/ToDoCount";
 import ClearButton from "../../components/ClearButton";
 import "./styles.css";
 
+const TODOS = [{ id: 0, title: "Learn React", complete: false }];
+
 class App extends Component {
   constructor() {
     super();
 
     this.state = {
-      // PR: todos come from props, and we don't need 
-      //     lastId as meteor collection handles that
-      todos: [{ id: 0, title: "Learn React", complete: false }],
-      lastId: 0,
-      inputValue: "",
+      todos: TODOS,
+      lastId: 1
     };
-
-    this.toDoInput = React.createRef();
   }
 
-  toggleComplete = item => {
-    // PR: need to rework toggleComplete to use meteor collection
+  toggleComplete = id => {
     let todos = this.state.todos.map(todo => {
-      if (item.id === todo.id) todo.complete = !todo.complete;
+      if (id === todo.id) todo.complete = !todo.complete;
       return todo;
     });
 
     this.setState({ todos });
   };
+
+  addToDo = title => {
+    const id = this.state.lastId + 1;
+    const newTodo = {
+      id,
+      complete: false,
+      title,
+    };
+
+    this.setState({
+      todos: [...this.state.todos, newTodo],
+      lastId: id,
+    });
+  };
+
+  removeToDo = id => {
+    let todos = this.state.todos.filter(todo => todo.id !== id);
+    this.setState({ todos });
+  };
+
+  removeCompleted = () => {
+    let todos = this.state.todos.filter(todo => !todo.complete);
+    this.setState({ todos });
+  };
+
+
+  render() {
+    return (
+      <ToDoForm 
+        todos={this.state.todos}
+        addToDo={title => this.addToDo(title)}
+        toggleComplete={id => this.toggleComplete(id)}
+        removeToDo={id => this.removeToDo(id)}
+        removeCompleted={() => this.removeCompleted()}
+      />
+    );
+  }
+}
+
+class ToDoForm extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      inputValue: "",
+    };
+
+    this.toDoInput = React.createRef();
+  }
 
   handleInputChange = event => {
     this.setState({ inputValue: event.target.value });
@@ -41,24 +86,10 @@ class App extends Component {
     let toDoInput = this.toDoInput.current;
 
     if (this.state.inputValue) {
-      // PR: need rework
-      //     - no longer need to calculate id as we can rely on _id from meteor
-      //     - need a new way of adding the new ToDo to meteor
-      //     - but we should still reset this.state.inputValue
-      const id = this.state.lastId + 1; // update id
-
-      const newTodos = [
-        ...this.state.todos,
-        {
-          id,
-          title: this.state.inputValue,
-          complete: false
-        }
-      ];
+      const title = this.state.inputValue;
+      this.props.addToDo(title);
 
       this.setState({
-        todos: newTodos,
-        lastId: id,
         inputValue: "",
       });
 
@@ -66,21 +97,9 @@ class App extends Component {
     }
   };
 
-  removeToDo = item => {
-    // PR: need to rework removeToDo to use meteor collection
-    let todos = this.state.todos.filter(todo => todo.id !== item.id);
-    this.setState({ todos });
-  };
-
-  removeCompleted = () => {
-    // PR: need to rework toggleComplete to use meteor collection
-    let todos = this.state.todos.filter(todo => !todo.complete);
-    this.setState({ todos });
-  };
-
   hasCompleted() {
-    // PR: changing this.state to this.props
-    let completed = this.state.todos.filter(todo => todo.complete);
+    const {todos} = this.props;
+    let completed = todos.filter(todo => todo.complete);
     return completed.length > 0 ? true : false;
   }
 
@@ -89,8 +108,8 @@ class App extends Component {
   }
 
   render() {
-    // PR: changing this.state to this.props
-    let number = this.state.todos.length;
+    const {todos, toggleComplete, addToDo, removeCompleted, removeToDo} = this.props;
+    let number = todos.length;
 
     return (
       <div className="todo-list">
@@ -103,20 +122,19 @@ class App extends Component {
         />
         <ul>
           {
-            // PR: changing this.state to this.props
-            this.state.todos.map((todo, index) => (
+            todos.map((todo, index) => (
             <ToDoItem
               key={index}
               item={todo}
-              toggleComplete={() => this.toggleComplete(todo)}
-              removeToDo={() => this.removeToDo(todo)}
+              toggleComplete={() => toggleComplete(todo.id)}
+              removeToDo={() => removeToDo(todo.id)}
             />
           ))}
         </ul>
         <div className="todo-admin">
           <ToDoCount number={number} />
           {this.hasCompleted() && (
-            <ClearButton removeCompleted={this.removeCompleted} />
+            <ClearButton removeCompleted={removeCompleted} />
           )}
         </div>
       </div>
