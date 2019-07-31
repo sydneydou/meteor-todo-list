@@ -5,7 +5,7 @@ Meteor.startup(() => {
   if (ToDos.find().count() === 0) {
     ToDos.insert({
       title: "Learn React",
-      complet: false
+      complete: false
     });
   }
 });

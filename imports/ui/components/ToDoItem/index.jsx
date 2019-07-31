@@ -6,11 +6,11 @@ const ToDoItem = ({ item, toggleComplete, removeToDo }) => (
     {item.title}
     <input
       type="checkbox"
-      id={item.id}
+      id={item._id}
       checked={item.complete}
       onChange={toggleComplete}
     />
-    <label htmlFor={item.id} />
+    <label htmlFor={item._id} />
     <button onClick={removeToDo}>
       <i className="fa fa-trash" />
     </button>
@@ -19,7 +19,7 @@ const ToDoItem = ({ item, toggleComplete, removeToDo }) => (
 
 ToDoItem.propTypes = {
   item: PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    _id: PropTypes.number.isRequired,
     title: PropTypes.string.isRequired,
     complete: PropTypes.bool.isRequired
   }),

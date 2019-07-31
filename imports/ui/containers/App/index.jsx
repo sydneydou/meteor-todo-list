@@ -8,63 +8,49 @@ import ClearButton from "../../components/ClearButton";
 import "./styles.css";
 
 import { ToDos } from "../../../api/todos";
-const TODOS = [{ id: 0, title: "Learn React", complete: false }];
 
 class App extends Component {
   constructor() {
     super();
-    // PR: do not need this anymore because meteor will handle the todos
-    this.state = {
-      todos: TODOS,
-      lastId: 0,
-    };
   }
 
-  // PR: need to use meteor to toggle complete
-  toggleComplete = id => {
-    let todos = this.state.todos.map(todo => {
-      if (id === todo.id) todo.complete = !todo.complete;
-      return todo;
-    });
+  toggleComplete = item => {
+		ToDos.update(
+			{ _id: item._id},
+      { $set: { complete: !item.complete }}
+   ); 
+	};
 
-    this.setState({ todos });
-  };
-
-  // PR: need to use meteor to add todo 
   addToDo = title => {
-    const id = this.state.lastId + 1;
     const newTodo = {
-      id,
       complete: false,
       title,
     };
 
-    this.setState({
-      todos: [...this.state.todos, newTodo],
-      lastId: id,
+    ToDos.insert(newTodo);
+  };
+
+  removeToDo = item => {
+    ToDos.remove({_id: item._id});
+  };
+
+  removeCompleted = () => {
+    const {todos} = this.props;
+    todos.forEach(todo => {
+      if (todo.complete) {
+        ToDos.remove({_id: todo._id});
+      }
     });
   };
 
-  // PR: need to use meteor to remove todo
-  removeToDo = id => {
-    let todos = this.state.todos.filter(todo => todo.id !== id);
-    this.setState({ todos });
-  };
-
-  // PR: need to use meteor to remove all completed
-  removeCompleted = () => {
-    let todos = this.state.todos.filter(todo => !todo.complete);
-    this.setState({ todos });
-  };
-
-
   render() {
+    const {todos} = this.props;
     return (
       <ToDoForm 
-        todos={this.state.todos}
+        todos={todos}
         addToDo={title => this.addToDo(title)}
-        toggleComplete={id => this.toggleComplete(id)}
-        removeToDo={id => this.removeToDo(id)}
+        toggleComplete={item => this.toggleComplete(item)}
+        removeToDo={item => this.removeToDo(item)}
         removeCompleted={() => this.removeCompleted()}
       />
     );
@@ -132,8 +118,8 @@ class ToDoForm extends Component {
             <ToDoItem
               key={index}
               item={todo}
-              toggleComplete={() => toggleComplete(todo.id)}
-              removeToDo={() => removeToDo(todo.id)}
+              toggleComplete={() => toggleComplete(todo)}
+              removeToDo={() => removeToDo(todo)}
             />
           ))}
         </ul>
