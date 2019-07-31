@@ -69,37 +69,6 @@
    color: #fa4f4f;
 }
 
-.add-todo {
-   background-color: #c2c2c2;
-   padding: 1rem;
-}
-
-.add-todo form {
-   align-items: center;
-   display: flex;
-   justify-content: space-between;
-}
-
-.add-todo form input[type="text"] {
-   background-color: transparent;
-   border: 0;
-   border-bottom: 1px solid #8f8f8f;
-   font-size: 1rem;
-   line-height: 1;
-   padding: 0.33333rem;
-}
-
-.add-todo form input[type="text"]:focus {
-   border-bottom-color: #a071b8;
-}
-
-.add-todo form span {
-   color: #8f8f8f;
-   font-size: 0.9rem;
-   line-height: 1;
-   text-align: right;
-}
-
 .todo-admin {
    align-items: center;
    display: flex;
